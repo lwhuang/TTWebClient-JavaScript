@@ -208,7 +208,7 @@
                             $('#level2').append('<table style="width:100%"><thead><tr><th>Bid</th><th>Price</th><th>Ask</th></tr></thead></table>');
                             var table = $('#level2').children();
                             var tbody = table.append('<tbody>');
-                            var asks = result['Asks'].sort(function (a, b) { return a['Price'] - b['Price'] });
+                            var asks = result['Asks'].sort(function (a, b) { return b['Price'] - a['Price'] });
                             for (index in asks) {
                                 var trow = '';
                                 var tick = asks[index];
@@ -217,7 +217,7 @@
                                 trow += '<td style="background: #FFE4FF;">' + tick['Volume'] + '</td>';
                                 tbody.append('<tr>' + trow + '</tr>');
                             }
-                            var bids = result['Bids'].sort(function (a, b) { return a['Price'] - b['Price'] });
+                            var bids = result['Bids'].sort(function (a, b) { return b['Price'] - a['Price'] });
                             for (index in bids) {
                                 var trow = '';
                                 var tick = bids[index];
