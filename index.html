@@ -35,13 +35,12 @@
         }
 
         var timer = null;
-        var accountType = null;
 
         function init() {
             $('.Connect').click(function() {
                 var $this = $(this);
                 if ($this.hasClass('Connect')) {
-                    $.when(updateTradeSessionStatus(), updateAccount(), updateSymbols()).done(function () {
+                    $.when(updateTradeSessionStatus(), updateSymbols()).done(function () {
                         connect();
                     });
                 } else {
@@ -88,15 +87,18 @@
             return new TickTraderWebClient($('#input_baseUrl')[0].value, $('#input_WebApiId')[0].value, $('#input_WebApiKey')[0].value, $('#input_WebApiSecret')[0].value);
         }
 
+        var accountType = null;
+
         function update() {
-            updateAccount();
             updateTicks();
             updateLevel2($('#level2symbol').val());
-            if (accountType == 'Cash')
-                updateAssets();
-            if (accountType == 'Net')
-                updatePositions();
-            updateTrades();
+            $.when(updateAccount()).done(function () {
+                if (accountType == 'Cash')
+                    updateAssets();
+                if (accountType == 'Net')
+                    updatePositions();
+                updateTrades();
+            });
         }
 
         function updateAccount() {
