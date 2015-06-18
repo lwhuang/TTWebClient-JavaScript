@@ -385,3 +385,69 @@ TickTraderWebClient.prototype.getTrade = function(symbol) {
         }
     });
 };
+
+/**
+ * Get account trade history
+ * New trade history request is described by the filling following fields:
+ * - **TimestampFrom** (optional) - Lower timestamp bound of the trade history request
+ * - **TimestampTo** (optional) - Upper timestamp bound of the trade history request
+ * - **RequestDirection** (optional) - Request paging direction ("Forward" or "Backward"). Default is "Forward".
+ * - **RequestFromId** (optional) - Request paging from Id
+ *
+ * If timestamps fields are not set trade history will be requests from the begin or from the current timestamp
+ * depending on **RequestDirection** value.
+ *
+ * Trade history is returned by chunks by paging size (default is 100). You can provide timestamp bounds (from, to)
+ * and direction of access (forward or backward). After the first request you'll get a list of trade history
+ * records with Ids. The next request should contain **RequestFromId** with the Id of the last processed trade
+ * history record. As the result you'll get the next chunk of trade history records. If the last page was reached
+ * response flag **IsLastReport** will be set.
+ * @param request Trade history request
+ * @returns Trade history report
+ */
+TickTraderWebClient.prototype.getTradeHistory = function(request) {
+    var instance = this;
+    return $.ajax({
+        url: this.web_api_address + "/api/v1/tradehistory",
+        type: "POST",
+        data: request,
+        data: JSON.stringify(request),
+        contentType: "application/json; charset=UTF-8",
+        beforeSend: function (request) {
+            _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
+        }
+    });
+};
+
+/**
+ * Get account trade history for the given trade Id
+ * New trade history request is described by the filling following fields:
+ * - **TimestampFrom** (optional) - Lower timestamp bound of the trade history request
+ * - **TimestampTo** (optional) - Upper timestamp bound of the trade history request
+ * - **RequestDirection** (optional) - Request paging direction ("Forward" or "Backward"). Default is "Forward".
+ * - **RequestFromId** (optional) - Request paging from Id
+ *
+ * If timestamps fields are not set trade history will be requests from the begin or from the current timestamp
+ * depending on **RequestDirection** value.
+ *
+ * Trade history is returned by chunks by paging size (default is 100). You can provide timestamp bounds (from, to)
+ * and direction of access (forward or backward). After the first request you'll get a list of trade history
+ * records with Ids. The next request should contain **RequestFromId** with the Id of the last processed trade
+ * history record. As the result you'll get the next chunk of trade history records. If the last page was reached
+ * response flag **IsLastReport** will be set.
+ * @param tradeId Trade Id
+ * @param request Trade history request
+ * @returns Trade history report
+ */
+TickTraderWebClient.prototype.getTradeHistoryByTradeId = function(tradeId, request) {
+    var instance = this;
+    return $.ajax({
+        url: this.web_api_address + "/api/v1/tradehistory/" + tradeId,
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: "application/json; charset=UTF-8",
+        beforeSend: function (request) {
+            _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
+        }
+    });
+};
