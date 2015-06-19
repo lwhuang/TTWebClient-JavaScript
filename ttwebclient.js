@@ -375,11 +375,115 @@ TickTraderWebClient.prototype.getAllTrades = function() {
  * @param symbol Symbol name
  * @returns Trade
  */
-TickTraderWebClient.prototype.getTrade = function(symbol) {
+TickTraderWebClient.prototype.getTrade = function(tradeId) {
     var instance = this;
     return $.ajax({
-        url: this.web_api_address + "/api/v1/trade/" + encodeURIComponent(encodeURIComponent(symbol)),
+        url: this.web_api_address + "/api/v1/trade/" + tradeId,
         type: "GET",
+        beforeSend: function (request) {
+            _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
+        }
+    });
+};
+
+/**
+ * Create new trade
+ * New trade request is described by the filling following fields:
+ * - **ClientId** (optional) - Client trade Id
+ * - **Type** (required) - Type of trade. Possible values: `"Market"`, `"Limit"`, `"Stop"`
+ * - **Side** (required) - Side of trade. Possible values: `"Buy"`, `"Sell"`
+ * - **Symbol** (required) - Trade symbol (e.g. `"EURUSD"`)
+ * - **Price** (optional) - Price of the `"Limit"` / `"Stop"` trades (for `Market` trades price field is ignored)
+ * - **Amount** (required) - Trade amount
+ * - **StopLoss** (optional) - Stop loss price
+ * - **TakeProfit** (optional) - Take profit price
+ * - **ExpiredTimestamp** (optional) - Expiration date and time for pending trades (`"Limit"`, `"Stop"`)
+ * - **ImmediateOrCancel** (optional) - "Immediate or cancel" flag (works only for `"Limit"` trades)
+ * - **Comment** (optional) - Client comment
+ * @param request Create trade request
+ * @returns Created trade
+ */
+TickTraderWebClient.prototype.createTrade= function(request) {
+    var instance = this;
+    return $.ajax({
+        url: this.web_api_address + "/api/v1/trade",
+        type: "POST",
+        data: request,
+        data: JSON.stringify(request),
+        contentType: "application/json; charset=UTF-8",
+        beforeSend: function (request) {
+            _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
+        }
+    });
+};
+
+/**
+ * Modify existing trade
+ * Modify trade request is described by the filling following fields:
+ * - **Id** (required) - Trade Id
+ * - **Price** (optional) - New price of the `Limit` / `Stop` trades (price of `Market` trades cannot be changed)
+ * - **StopLoss** (optional) - Stop loss price
+ * - **TakeProfit** (optional) - Take profit price
+ * - **ExpiredTimestamp** (optional) - Expiration date and time for pending trades (`Limit`, `Stop`)
+ * - **Comment** (optional) - Client comment
+ * @param request Modify trade request
+ * @returns Modified trade
+ */
+TickTraderWebClient.prototype.modifyTrade= function(request) {
+    var instance = this;
+    return $.ajax({
+        url: this.web_api_address + "/api/v1/trade",
+        type: "PUT",
+        data: request,
+        data: JSON.stringify(request),
+        contentType: "application/json; charset=UTF-8",
+        beforeSend: function (request) {
+            _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
+        }
+    });
+};
+
+/**
+ * Cancel existing pending trade
+ * @param tradeId Trade Id to cancel
+ */
+TickTraderWebClient.prototype.cancelTrade= function(tradeId) {
+    var instance = this;
+    return $.ajax({
+        url: this.web_api_address + "/api/v1/trade?type=Cancel&id=" + tradeId,
+        type: "DELETE",
+        beforeSend: function (request) {
+            _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
+        }
+    });
+};
+
+/**
+ * Close existing market trade
+ * @param tradeId Trade Id to cancel
+ * @param amount Amount to close (optional)
+ */
+TickTraderWebClient.prototype.closeTrade= function(tradeId, amount) {
+    var instance = this;
+    return $.ajax({
+        url: ((amount) ? this.web_api_address + "/api/v1/trade?type=Close&id=" + tradeId + "&amount=" + amount : this.web_api_address + "/api/v1/trade?type=Close&id=" + tradeId),
+        type: "DELETE",
+        beforeSend: function (request) {
+            _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
+        }
+    });
+};
+
+/**
+ * Close existing market trade by another one
+ * @param tradeId Trade Id to cancel
+ * @param byTradeId By trade Id
+ */
+TickTraderWebClient.prototype.closeByTrade= function(tradeId, byTradeId) {
+    var instance = this;
+    return $.ajax({
+        url: this.web_api_address + "/api/v1/trade?type=CloseBy&id=" + tradeId + "&byid=" + byTradeId,
+        type: "DELETE",
         beforeSend: function (request) {
             _signRequest(this, request, instance.web_api_id, instance.web_api_key, instance.web_api_secret);
         }

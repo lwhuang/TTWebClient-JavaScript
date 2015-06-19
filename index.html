@@ -89,6 +89,17 @@
             $('#level2symbol').attr('disabled', 'disabled');
             $('#level2symbol').children().remove();
             $('#trade-session-status').children().remove();
+            $('#create-trade-symbol').attr('disabled', 'disabled');
+            $('#create-trade-sell').attr('disabled', 'disabled');
+            $('#create-trade-buy').attr('disabled', 'disabled');
+            $('#create-trade-sell-limit').attr('disabled', 'disabled');
+            $('#create-trade-buy-limit').attr('disabled', 'disabled');
+            $('#create-trade-sell-stop').attr('disabled', 'disabled');
+            $('#create-trade-buy-stop').attr('disabled', 'disabled');
+            $('#modify-trade').attr('disabled', 'disabled');
+            $('#cancel-trade').attr('disabled', 'disabled');
+            $('#close-trade').attr('disabled', 'disabled');
+            $('#close-by-trade').attr('disabled', 'disabled');
             $('#assets').children().remove();
             $('#positions').children().remove();
             $('#trades').children().remove();
@@ -106,6 +117,17 @@
             updateTicks();
             updateLevel2($('#level2symbol').val());
             $.when(updateAccount()).done(function () {
+                $('#create-trade-symbol').removeAttr('disabled');
+                $('#create-trade-sell').removeAttr('disabled');
+                $('#create-trade-buy').removeAttr('disabled');
+                $('#create-trade-sell-limit').removeAttr('disabled');
+                $('#create-trade-buy-limit').removeAttr('disabled');
+                $('#create-trade-sell-stop').removeAttr('disabled');
+                $('#create-trade-buy-stop').removeAttr('disabled');
+                $('#modify-trade').removeAttr('disabled');
+                $('#cancel-trade').removeAttr('disabled');
+                $('#close-trade').removeAttr('disabled');
+                $('#close-by-trade').removeAttr('disabled');
                 if (accountType == 'Cash')
                     updateAssets();
                 if (accountType == 'Net')
@@ -172,11 +194,16 @@
                 return client.getAllSymbols()
                         .done(function (result) {
                             $('#level2symbol').removeAttr('disabled');
+                            $('#create-trade-symbol').removeAttr('disabled');
                             $('#level2symbol').children().remove();
-                            var options = $('#level2symbol');
+                            $('#create-trade-symbol').children().remove();
+                            var options1 = $('#level2symbol');
+                            var options2 = $('#create-trade-symbol');
                             for (index in result) {
                                 var symbol = result[index];
-                                options.append('<option>' + symbol['Symbol'] + '</option>');
+                                var option = '<option>' + symbol['Symbol'] + '</option>';
+                                options1.append(option);
+                                options2.append(option);
                             }
                         })
                         .error(errorHandler)
@@ -191,6 +218,7 @@
                 var client = createWebApiClient();
                 return client.getAllTicks()
                         .done(function (result) {
+                            var createTradeSymbol = $('#create-trade-symbol').val();
                             $('#ticks').children().remove();
                             $('#ticks').append('<table style="width:100%"><thead><tr><th>Symbol</th><th>Bid Price</th><th>Bid Volume</th><th>Ask Price</th><th>Ask Volume</th></tr></thead></table>');
                             var table = $('#ticks').children();
@@ -204,6 +232,11 @@
                                 trow += '<td>' + tick['BestAsk']['Price'] + '</td>';
                                 trow += '<td>' + tick['BestAsk']['Volume'] + '</td>';
                                 tbody.append('<tr>' + trow + '</tr>');
+
+                                if (createTradeSymbol == tick['Symbol']) {
+                                    $('#create-trade-sell').text('Sell at ' + tick['BestBid']['Price']);
+                                    $('#create-trade-buy').text('Buy at ' + tick['BestAsk']['Price']);
+                                }
                             }
                         })
                         .error(errorHandler)
@@ -255,6 +288,149 @@
             var idx = list.selectedIndex;
             var content = list.options[idx].innerHTML;
             updateLevel2(content);
+        }
+
+        function createTrade(isMarket, isLimit, isStop, isSell) {
+            try {
+                var symbol = $('#create-trade-symbol').val();
+                var amount = $('#create-trade-amount').val();
+                var sl = $('#create-trade-sl').val();
+                var tp = $('#create-trade-tp').val();
+                var comment = $('#create-trade-comment').val();
+                var price = $('#create-trade-price').val();
+                var request = {
+                    Type: isMarket ? "Market" : isLimit ? "Limit" : isStop ? "Stop" : "<unknown>",
+                    Side: isSell ? "Sell" : "Buy",
+                    Symbol: symbol,
+                    Amount: parseFloat(amount),
+                    Comment: comment
+                }
+                if ((isLimit || isStop) && price)
+                    request['Price'] = parseFloat(price);
+                if (sl)
+                    request['StopLoss'] = parseFloat(sl);
+                if (tp)
+                    request['TakeProfit'] = parseFloat(tp);
+                var client = createWebApiClient();
+                if (confirm("Do you want to create new trade?")) {
+                    return client.createTrade(request)
+                            .done(function (result) {
+                                alert("New " + result['Type'] + " trade was created at " + result['Price'] + " with Id = " + result['Id']);
+                            })
+                            .error(errorHandler)
+                }
+            }
+            catch (err) {
+                errorHandler(null, err, null);
+            }
+        }
+
+        function modifyTrade() {
+            try {
+                var id = $('#modify-trade-id').val();
+                var price = $('#modify-trade-price').val();
+                var sl = $('#modify-trade-sl').val();
+                var tp = $('#modify-trade-tp').val();
+                var comment = $('#modify-trade-comment').val();
+                var request = {
+                    Id: parseInt(id),
+                    Comment: comment
+                }
+                if (price)
+                    request['Price'] = parseFloat(price);
+                if (sl)
+                    request['StopLoss'] = parseFloat(sl);
+                if (tp)
+                    request['TakeProfit'] = parseFloat(tp);
+                var client = createWebApiClient();
+                if (confirm("Do you want to modify trade with Id = " + id + "?")) {
+                    return client.modifyTrade(request)
+                            .done(function (result) {
+                                alert(result['Type'] + " trade with Id = " + result['Id'] + " was successfully modified!");
+                            })
+                            .error(errorHandler)
+                }
+            }
+            catch (err) {
+                errorHandler(null, err, null);
+            }
+        }
+
+        function cancelTrade() {
+            try {
+                var id = $('#close-trade-id').val();
+                var client = createWebApiClient();
+                if (confirm("Do you want to cancel pending trade with Id = " + id + "?")) {
+                    return client.cancelTrade(id)
+                            .done(function (result) {
+                                alert("Pending trade with Id = " + id + " was successfully canceled!");
+                            })
+                            .error(errorHandler)
+                }
+            }
+            catch (err) {
+                errorHandler(null, err, null);
+            }
+        }
+
+        function closeTrade() {
+            try {
+                var id = $('#close-trade-id').val();
+                var amount = $('#close-trade-amount').val();
+                var client = createWebApiClient();
+                if (confirm("Do you want to close position with Id = " + id + " (amount to close = " + amount + ")?")) {
+                    return client.closeTrade(id, amount)
+                            .done(function (result) {
+                                alert("Position with Id = " + id + " was successfully closed (amount to close = " + amount + ")!");
+                            })
+                            .error(errorHandler)
+                }
+            }
+            catch (err) {
+                errorHandler(null, err, null);
+            }
+        }
+
+        function closeByTrade() {
+            try {
+                var id = $('#close-trade-id').val();
+                var byId = $('#close-trade-by-id').val();
+                var client = createWebApiClient();
+                if (confirm("Do you want to close position with Id = " + id + " by position with Id = " + byId + ")?")) {
+                    return client.closeByTrade(id, byId)
+                            .done(function (result) {
+                                alert("Position with Id = " + id + " was successfully closed by position with Id = " + byId + ")!");
+                            })
+                            .error(errorHandler)
+                }
+            }
+            catch (err) {
+                errorHandler(null, err, null);
+            }
+        }
+
+        function selectTrade(trow) {
+            try {
+                var tradeId = trow.href.substr(trow.href.lastIndexOf('-') + 1);
+                var client = createWebApiClient();
+                $.when(client.getTrade(tradeId)).done(function (result) {
+                    $('#modify-trade-id').val(result['Id']);
+                    $('#close-trade-id').val(result['Id']);
+                    var type = result['Type'];
+                    if ((type == 'Limit') || (type == 'Stop'))
+                        $('#modify-trade-price').val(result['Price']);
+                    else {
+                        $('#modify-trade-price').val(null);
+                        $('#close-trade-amount').val(result['Amount']);
+                    }
+                    $('#modify-trade-sl').val(result['StopLoss']);
+                    $('#modify-trade-tp').val(result['TakeProfit']);
+                    $('#modify-trade-comment').val(result['Comment']);
+                });
+            }
+            catch (err) {
+                errorHandler(null, err, null);
+            }
         }
 
         function updateAssets() {
@@ -322,7 +498,8 @@
                             for (index in result) {
                                 var trow = '';
                                 var trade = result[index];
-                                trow += '<td>' + getValueOrDefault(trade['Id'], '') + '</td>';
+                                var tradeId = getValueOrDefault(trade['Id'], '');
+                                trow += '<td><a href="#trade-' + tradeId + '" onclick="selectTrade(this);">' + tradeId + '</a></td>';
                                 trow += '<td>' + getValueOrDefault(trade['Type'], '') + '</td>';
                                 trow += '<td>' + getValueOrDefault(trade['Side'], '') + '</td>';
                                 trow += '<td>' + getValueOrDefault(trade['Symbol'], '') + '</td>';
@@ -432,10 +609,10 @@
     <div class="common-ui-wrap">
         <a id="logo" href="https://www.soft-fx.com/"></a>
         <form id='api_selector'>
-            <div class='input'><input placeholder="https://tpdemo.fxopen.com:5020" id="input_baseUrl" name="baseUrl" type="text" value="https://tp.dev.soft-fx.eu:5020"/></div>
-            <div class='input'><input placeholder="Web API Id" id="input_WebApiId" name="webApiId" type="text" value="549625e8-9ea1-48bd-bcc9-d9a5bba60be5"/></div>
-            <div class='input'><input placeholder="Web API Key" id="input_WebApiKey" name="webApiKey" type="text" value="tP8dtrRRrSeRdkQQ"/></div>
-            <div class='input'><input placeholder="Web API Secret" id="input_WebApiSecret" name="webApiSecret" type="text" value="hJZcR9PQ49s3CHMzEye77YGs4Srzgz6ktbyzC4XpzHNAnKchXnBEHHytcFj9RqGD"/></div>
+            <div class='input'><input placeholder="https://tpdemo.fxopen.com:5020" id="input_baseUrl" name="baseUrl" type="text" value=""/></div>
+            <div class='input'><input placeholder="Web API Id" id="input_WebApiId" name="webApiId" type="text" value=""/></div>
+            <div class='input'><input placeholder="Web API Key" id="input_WebApiKey" name="webApiKey" type="text" value=""/></div>
+            <div class='input'><input placeholder="Web API Secret" id="input_WebApiSecret" name="webApiSecret" type="text" value=""/></div>
             <div class='input'><button id="connect" class="Connect" type="button">Connect</button></div>
         </form>
     </div>
@@ -457,7 +634,7 @@
         <div>
             <h1><a href="#level2" onclick="toggleVisibility('level2-div');">Level2</a></h1>
             <div id='level2-div' style="display: block;">
-                <div style="padding-right: 5px; float:left;"><select id='level2symbol' onchange="selectSymbolLevel2(this);" ></select></div>
+                <div style="padding-right: 5px; float:left;"><select id='level2symbol' onchange="selectSymbolLevel2(this);" style="width: 200px;"></select></div>
                 <br/><br/>
                 <div id='level2'></div>
             </div>
@@ -470,6 +647,63 @@
         </div>
     </div>
     <div style="padding-left: 50px; width:750px; float:left;">
+        <div>
+            <h1><a href="#create-trade" onclick="toggleVisibility('create-trade-div');">Create trade</a></h1>
+            <div id='create-trade-div' style="display: block;">
+                <div style="padding-right: 5px; clear:left;">
+                    <select id='create-trade-symbol' style="width: 200px;"></select>
+                    <input placeholder="Amount" id="create-trade-amount" name="TradeAmount" type="text" value="10000" style="width: 150px;"/>
+                    <input placeholder="Stop Loss" id="create-trade-sl" name="TradeSL" type="text" value="" style="width: 150px;"/>
+                    <input placeholder="Take Profit" id="create-trade-tp" name="TradeTP" type="text" value="" style="width: 150px;"/>
+                </div><br/>
+                <div style="padding-right: 5px; clear:left;">
+                    <input placeholder="Comment" id="create-trade-comment" name="TradeComment" type="text" value="" style="width: 670px;"/>
+                </div><br/>
+                <div style="padding-right: 5px; clear:left;">
+                    <button id="create-trade-sell" class="TradeSell" type="button" style="background: #FF9696; width: 335px;" onclick="createTrade(true, false, false, true);">Sell</button>
+                    <button id="create-trade-buy" class="TradeBuy" type="button" style="background: #7579FF; width: 335px;" onclick="createTrade(true, false, false, false);">Buy</button>
+                </div><br/>
+                <div style="padding-right: 5px; clear:left;">
+                    <input placeholder="Price" id="create-trade-price" name="TradePrice" type="text" style="width: 150px;"/>
+                    <button id="create-trade-sell-limit" class="TradeSellLimit" type="button" style="width: 125px;" onclick="createTrade(false, true, false, true);">Sell Limit</button>
+                    <button id="create-trade-buy-limit" class="TradeBuyLimit" type="button" style="width: 125px;" onclick="createTrade(false, true, false, false);">Buy Limit</button>
+                    <button id="create-trade-sell-stop" class="TradeSellStop" type="button" style="width: 125px;" onclick="createTrade(false, false, true, true);">Sell Stop</button>
+                    <button id="create-trade-buy-stop" class="TradeBuyStop" type="button" style="width: 125px;" onclick="createTrade(false, false, true, false);">Buy Stop</button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h1><a href="#modify-trade" onclick="toggleVisibility('modify-trade-div');">Modify trade</a></h1>
+            <div id='modify-trade-div' style="display: block;">
+                <div style="padding-right: 5px; clear:left;">
+                    <input placeholder="Trade Id" id="modify-trade-id" name="TradeModifyId" type="text" style="width: 160px;"/>
+                    <input placeholder="Price" id="modify-trade-price" name="TradeModifyPrice" type="text" style="width: 160px;"/>
+                    <input placeholder="Stop Loss" id="modify-trade-sl" name="TradeModifySL" type="text" value="" style="width: 160px;"/>
+                    <input placeholder="Take Profit" id="modify-trade-tp" name="TradeModifyTP" type="text" value="" style="width: 160px;"/>
+                </div><br/>
+                <div style="padding-right: 5px; clear:left;">
+                    <input placeholder="Comment" id="modify-trade-comment" name="TradeModifyComment" type="text" value="" style="width: 496px;"/>
+                    <button id="modify-trade" class="TradeModify" type="button" style="width: 165px;" onclick="modifyTrade();">Modify Trade</button>
+                </div><br/>
+            </div>
+        </div>
+        <div>
+            <h1><a href="#close-trade" onclick="toggleVisibility('close-trade-div');">Cancel or close trade</a></h1>
+            <div id='close-trade-div' style="display: block;">
+                <div style="padding-right: 5px; clear:left;">
+                    <input placeholder="Trade Id" id="close-trade-id" name="TradeCloseId" type="text" style="width: 160px;"/>
+                    <button id="cancel-trade" class="TradeCancel" type="button" style="width: 165px;" onclick="cancelTrade();">Cancel Trade</button>
+                </div><br/>
+                <div style="padding-right: 5px; clear:left;">
+                    <input placeholder="Close amount" id="close-trade-amount" name="TradeCloseAmount" type="text" style="width: 160px;"/>
+                    <button id="close-trade" class="TradeClose" type="button" style="width: 165px;" onclick="closeTrade();">Close Trade</button>
+                </div><br/>
+                <div style="padding-right: 5px; clear:left;">
+                    <input placeholder="By Trade Id" id="close-trade-by-id" name="TradeCloseById" type="text" style="width: 160px;"/>
+                    <button id="close-by-trade" class="TradeCloseBy" type="button" style="width: 165px;" onclick="closeByTrade();">Close By Trade</button>
+                </div><br/>
+            </div>
+        </div>
         <div>
             <h1><a href="#assets" onclick="toggleVisibility('assets-div');">Assets</a></h1>
             <div id='assets-div' style="display: block;">
