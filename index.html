@@ -14,7 +14,7 @@
     <script type="text/javascript">
         function getTimeOrDefault(value, defaultValue) {
             if (value !== undefined)
-                return new Date(value).toLocaleString();
+                return new Date(value).toUTCString();
             else
                 return defaultValue;
         }
@@ -110,7 +110,7 @@
         function createWebApiClient() {
             return new TickTraderWebClient($('#input_baseUrl')[0].value, $('#input_WebApiId')[0].value, $('#input_WebApiKey')[0].value, $('#input_WebApiSecret')[0].value);
         }
-
+        
         var accountType = null;
 
         function update() {
@@ -149,7 +149,7 @@
                             for (key in result) {
                                 var trow = '';
                                 if (key == 'Registered')
-                                    trow += '<td>' + key + '</td><td>' + new Date(result[key]).toLocaleString() + '</td>';
+                                    trow += '<td>' + key + '</td><td>' + getTimeOrDefault(result[key], '') + '</td>';
                                 else
                                     trow += '<td>' + key + '</td><td>' + result[key] + '</td>';
                                 tbody.append('<tr>' + trow + '</tr>');
@@ -175,7 +175,7 @@
                             for (key in result) {
                                 var trow = '';
                                 if ((key == 'SessionStartTime') || (key == 'SessionEndTime') || (key == 'SessionOpenTime') || (key == 'SessionCloseTime'))
-                                    trow += '<td>' + key + '</td><td>' + new Date(result[key]).toLocaleString() + '</td>';
+                                    trow += '<td>' + key + '</td><td>' + getTimeOrDefault(result[key], '') + '</td>';
                                 else
                                     trow += '<td>' + key + '</td><td>' + result[key] + '</td>';
                                 tbody.append('<tr>' + trow + '</tr>');
@@ -535,7 +535,7 @@
                 var request = {
                     TimestampFrom: fromTimestamp.getTime(),
                     TimestampTo: toTimestamp.getTime(),
-                    RequestPageSize: 1,
+                    RequestPageSize: 100,
                     RequestDirection: "Backward"
                 };
                 return client.getTradeHistory(request)
@@ -554,41 +554,15 @@
                 for (index in records) {
                     var trow = '';
                     var history = records[index];
-                    lastId = getValueOrDefault(history['Id'], null);
-                    trow += '<td>' + new Date(history['TransactionTimestamp']).toLocaleString() + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TransactionType'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TransactionReason'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['Symbol'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradeId'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['ParentTradeId'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradeSide'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradeType'], '') + '</td>';
-                    trow += '<td>' + getTimeOrDefault(history['TradeCreated'], '') + '</td>';
-                    trow += '<td>' + getTimeOrDefault(history['TradeModified'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradeAmount'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradeInitialAmount'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradeLastFillAmount'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradePrice'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TradeFillPrice'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['RequestPrice'], '') + '</td>';
-                    trow += '<td>' + getTimeOrDefault(history['RequestTimestamp'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['PositionId'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['PositionAmount'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['PositionInitialAmount'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['PositionLastAmount'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['PositionOpenPrice'], '') + '</td>';
-                    trow += '<td>' + getTimeOrDefault(history['PositionOpened'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['PositionClosePrice'], '') + '</td>';
-                    trow += '<td>' + getTimeOrDefault(history['PositionClosed'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['Balance'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['BalanceMovement'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['BalanceCurrency'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['StopLoss'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['TakeProfit'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['Commission'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['Swap'], '') + '</td>';
-                    trow += '<td>' + getValueOrDefault(history['Comment'], '') + '</td>';
-                    tbody.append('<tr>' + trow + '</tr>');
+                    for (key in history) {
+                        lastId = getValueOrDefault(history['Id'], null);
+                        var trow = '';
+                        if ((key == 'TransactionTimestamp') || (key == 'TradeCreated') || (key == 'TradeModified') || (key == 'RequestTimestamp') || (key == 'PositionOpened') || (key == 'PositionClosed') || (key == 'Expired'))
+                            trow += '<td>' + key + '</td><td>' + getTimeOrDefault(result[key], '') + '</td>';
+                        else
+                            trow += '<td>' + key + '</td><td>' + history[key] + '</td>';
+                        tbody.append('<tr>' + trow + '</tr>');
+                    }
                 }
 
                 if (!result['IsLastReport']) {
