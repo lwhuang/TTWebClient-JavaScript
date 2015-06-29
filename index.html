@@ -558,11 +558,11 @@
                         lastId = getValueOrDefault(history['Id'], null);
                         var trow = '';
                         if ((key == 'TransactionTimestamp') || (key == 'TradeCreated') || (key == 'TradeModified') || (key == 'RequestTimestamp') || (key == 'PositionOpened') || (key == 'PositionClosed') || (key == 'Expired'))
-                            trow += '<td>' + key + '</td><td>' + getTimeOrDefault(result[key], '') + '</td>';
+                            trow += '<td>' + getTimeOrDefault(result[key], '') + '</td>';
                         else
-                            trow += '<td>' + key + '</td><td>' + history[key] + '</td>';
-                        tbody.append('<tr>' + trow + '</tr>');
+                            trow += '<td>' + history[key] + '</td>';
                     }
+                    tbody.append('<tr>' + trow + '</tr>');
                 }
 
                 if (!result['IsLastReport']) {
