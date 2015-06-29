@@ -554,14 +554,46 @@
                 for (index in records) {
                     var trow = '';
                     var history = records[index];
-                    for (key in history) {
-                        lastId = getValueOrDefault(history['Id'], null);
-                        var trow = '';
-                        if ((key == 'TransactionTimestamp') || (key == 'TradeCreated') || (key == 'TradeModified') || (key == 'RequestTimestamp') || (key == 'PositionOpened') || (key == 'PositionClosed') || (key == 'Expired'))
-                            trow += '<td>' + getTimeOrDefault(result[key], '') + '</td>';
-                        else
-                            trow += '<td>' + history[key] + '</td>';
-                    }
+                    lastId = getValueOrDefault(history['Id'], null);
+                    trow += '<td>' + getValueOrDefault(history['Id'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TransactionType'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TransactionReason'], '') + '</td>';
+                    trow += '<td>' + getTimeOrDefault(history['TransactionTimestamp'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['Symbol'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradeId'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['ParentTradeId'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradeSide'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradeType'], '') + '</td>';
+                    trow += '<td>' + getTimeOrDefault(history['TradeCreated'], '') + '</td>';
+                    trow += '<td>' + getTimeOrDefault(history['TradeModified'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradeAmount'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradeInitialAmount'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradeLastFillAmount'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradePrice'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TradeFillPrice'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['RequestPrice'], '') + '</td>';
+                    trow += '<td>' + getTimeOrDefault(history['RequestTimestamp'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['PositionId'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['PositionAmount'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['PositionInitialAmount'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['PositionLastAmount'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['PositionOpenPrice'], '') + '</td>';
+                    trow += '<td>' + getTimeOrDefault(history['PositionOpened'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['PositionClosePrice'], '') + '</td>';
+                    trow += '<td>' + getTimeOrDefault(history['PositionClosed'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['Balance'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['BalanceMovement'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['BalanceCurrency'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['StopLoss'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['TakeProfit'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['Commission'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['AgentCommission'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['Swap'], '') + '</td>';
+                    trow += '<td>' + getTimeOrDefault(history['Expired'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['Comment'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['MarginRateInitial'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['OpenConversionRate'], '') + '</td>';
+                    trow += '<td>' + getValueOrDefault(history['CloseConversionRate'], '') + '</td>';
                     tbody.append('<tr>' + trow + '</tr>');
                 }
 
