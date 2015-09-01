@@ -2,7 +2,7 @@
 JavaScript Web API client for TickTrader
 
 ## TickTrader Web API interactive documentation
-https://tp.dev.soft-fx.eu:5020/api/doc/index
+https://ttdemowebapi.soft-fx.com:8443/api/doc/index
 
 ## Sample single-page Web Site based on the JavaScript client
 http://softfx.github.io/TTWebClient-JavaScript
@@ -25,10 +25,10 @@ You can include them into your code using the following code snipet:
 ```JavaScript
 <script src="https://raw.githubusercontent.com/SoftFx/TTWebClient-JavaScript/master/ttwebclient.js"></script>
 <script type="text/javascript">
-  var web_api_address = 'https://tpdemo.fxopen.com:5020';
-  var web_api_id = '8bd43d1f-39a4-45cd-a876-6acc0586533d';
-  var web_api_key = 'qXhpBKFkndWWGYQ2';
-  var web_api_secret = 'dSccqQmtaPc2xB68GD6A7KBgpfRhHJkFe5AchGShbDGzyn8H8ThjPspCq6Yh8cTz';
+  var web_api_address = 'https://ttdemowebapi.soft-fx.com:8443';
+  var web_api_id = '1de621ca-e686-4ee2-92a5-45c87b4b3fe5';
+  var web_api_key = 'czNhCcnK6ydePCHZ';
+  var web_api_secret = 'J6Jxc2xPr8JyNpWtyEaCPYpkpJpsSQ38xb9AZNxBAGdtQrNDhQwf9mkWQygCKd6K';
   
   function createWebApiClient() {
     return new TickTraderWebClient(web_api_address, web_api_id, web_api_key, web_api_secret);

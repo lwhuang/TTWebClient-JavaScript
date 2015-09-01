@@ -463,12 +463,13 @@
                 return client.getAllPositions()
                         .done(function (result) {
                             $('#positions').children().remove();
-                            $('#positions').append('<table style="width:100%"><thead><tr><th>Symbol</th><th>Long Amount</th><th>Long Price</th><th>Short Amount</th><th>Short Price</th><th>Commission</th><th>Swap</th></tr></thead></table>');
+                            $('#positions').append('<table style="width:100%"><thead><tr><th>Id</th><th>Symbol</th><th>Long Amount</th><th>Long Price</th><th>Short Amount</th><th>Short Price</th><th>Commission</th><th>Swap</th></tr></thead></table>');
                             var table = $('#positions').children();
                             var tbody = table.append('<tbody>');
                             for (index in result) {
                                 var trow = '';
                                 var position = result[index];
+                                trow += '<td>' + getValueOrDefault(position['Id'], '') + '</td>';
                                 trow += '<td>' + getValueOrDefault(position['Symbol'], '') + '</td>';
                                 trow += '<td>' + getValueOrDefault(position['LongAmount'], '') + '</td>';
                                 trow += '<td>' + getValueOrDefault(position['LongPrice'], '') + '</td>';
@@ -616,7 +617,7 @@
     <div class="common-ui-wrap">
         <a id="logo" href="https://www.soft-fx.com/"></a>
         <form id='api_selector'>
-            <div class='input'><input placeholder="https://tpdemo.fxopen.com:5020" id="input_baseUrl" name="baseUrl" type="text" value=""/></div>
+            <div class='input'><input placeholder="https://ttdemowebapi.soft-fx.com:8443" id="input_baseUrl" name="baseUrl" type="text" value=""/></div>
             <div class='input'><input placeholder="Web API Id" id="input_WebApiId" name="webApiId" type="text" value=""/></div>
             <div class='input'><input placeholder="Web API Key" id="input_WebApiKey" name="webApiKey" type="text" value=""/></div>
             <div class='input'><input placeholder="Web API Secret" id="input_WebApiSecret" name="webApiSecret" type="text" value=""/></div>
