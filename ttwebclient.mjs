@@ -42,50 +42,50 @@ class TickTraderWebClient {
     });
   }
 
-  getPublicTradeSession() { return this._publicAjax("/api/v1/public/tradesession"); }
-  getPublicAllCurrencies() { return this._publicAjax("/api/v1/public/currency"); }
-  getPublicCurrency(currency) { return this._publicAjax("/api/v1/public/currency/" + encodeURIComponent(currency)); }
-  getPublicAllSymbols() { return this._publicAjax("/api/v1/public/symbol"); }
-  getPublicSymbol(symbol) { return this._publicAjax("/api/v1/public/symbol/" + encodeURIComponent(symbol)); }
-  getPublicAllTicks() { return this._publicAjax("/api/v1/public/tick"); }
-  getPublicTick(symbol) { return this._publicAjax("/api/v1/public/tick/" + encodeURIComponent(symbol)); }
-  getPublicAllTicksLevel2() { return this._publicAjax("/api/v1/public/level2"); }
-  getPublicTickLevel2(symbol) { return this._publicAjax("/api/v1/public/level2/" + encodeURIComponent(symbol)); }
+  getPublicTradeSession() { return this._publicAjax("/api/v2/public/tradesession"); }
+  getPublicAllCurrencies() { return this._publicAjax("/api/v2/public/currency"); }
+  getPublicCurrency(currency) { return this._publicAjax("/api/v2/public/currency/" + encodeURIComponent(currency)); }
+  getPublicAllSymbols() { return this._publicAjax("/api/v2/public/symbol"); }
+  getPublicSymbol(symbol) { return this._publicAjax("/api/v2/public/symbol/" + encodeURIComponent(symbol)); }
+  getPublicAllTicks() { return this._publicAjax("/api/v2/public/tick"); }
+  getPublicTick(symbol) { return this._publicAjax("/api/v2/public/tick/" + encodeURIComponent(symbol)); }
+  getPublicAllTicksLevel2() { return this._publicAjax("/api/v2/public/level2"); }
+  getPublicTickLevel2(symbol) { return this._publicAjax("/api/v2/public/level2/" + encodeURIComponent(symbol)); }
 
-  getAccount() { return this._authAjax(`${this.web_api_address}/api/v1/account`); }
-  getTradeSession() { return this._authAjax(`${this.web_api_address}/api/v1/tradesession`); }
-  getAllCurrencies() { return this._authAjax(`${this.web_api_address}/api/v1/currency`); }
-  getCurrency(currency) { return this._authAjax(`${this.web_api_address}/api/v1/currency/` + encodeURIComponent(currency)); }
-  getAllSymbols() { return this._authAjax(`${this.web_api_address}/api/v1/symbol`); }
-  getSymbol(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/symbol/` + encodeURIComponent(symbol)); }
-  getAllTicks() { return this._authAjax(`${this.web_api_address}/api/v1/tick`); }
-  getTick(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/tick/` + encodeURIComponent(symbol)); }
-  getAllTicksLevel2() { return this._authAjax(`${this.web_api_address}/api/v1/level2`); }
-  getTickLevel2(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/level2/` + encodeURIComponent(symbol)); }
-  getAllAssets() { return this._authAjax(`${this.web_api_address}/api/v1/asset`); }
-  getAsset(currency) { return this._authAjax(`${this.web_api_address}/api/v1/asset/` + encodeURIComponent(currency)); }
-  getAllPositions() { return this._authAjax(`${this.web_api_address}/api/v1/position`); }
-  getPosition(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/position/` + encodeURIComponent(symbol)); }
-  getAllTrades() { return this._authAjax(`${this.web_api_address}/api/v1/trade`); }
-  getTrade(tradeId) { return this._authAjax(`${this.web_api_address}/api/v1/trade/` + tradeId); }
-  createTrade(data) { return this._authAjax(`${this.web_api_address}/api/v1/trade`, 'POST', data); }
-  modifyTrade(data) { return this._authAjax(`${this.web_api_address}/api/v1/trade`, 'PUT', data); }
+  getAccount() { return this._authAjax(`${this.web_api_address}/api/v2/account`); }
+  getTradeSession() { return this._authAjax(`${this.web_api_address}/api/v2/tradesession`); }
+  getAllCurrencies() { return this._authAjax(`${this.web_api_address}/api/v2/currency`); }
+  getCurrency(currency) { return this._authAjax(`${this.web_api_address}/api/v2/currency/` + encodeURIComponent(currency)); }
+  getAllSymbols() { return this._authAjax(`${this.web_api_address}/api/v2/symbol`); }
+  getSymbol(symbol) { return this._authAjax(`${this.web_api_address}/api/v2/symbol/` + encodeURIComponent(symbol)); }
+  getAllTicks() { return this._authAjax(`${this.web_api_address}/api/v2/tick`); }
+  getTick(symbol) { return this._authAjax(`${this.web_api_address}/api/v2/tick/` + encodeURIComponent(symbol)); }
+  getAllTicksLevel2() { return this._authAjax(`${this.web_api_address}/api/v2/level2`); }
+  getTickLevel2(symbol) { return this._authAjax(`${this.web_api_address}/api/v2/level2/` + encodeURIComponent(symbol)); }
+  getAllAssets() { return this._authAjax(`${this.web_api_address}/api/v2/asset`); }
+  getAsset(currency) { return this._authAjax(`${this.web_api_address}/api/v2/asset/` + encodeURIComponent(currency)); }
+  getAllPositions() { return this._authAjax(`${this.web_api_address}/api/v2/position`); }
+  getPosition(symbol) { return this._authAjax(`${this.web_api_address}/api/v2/position/` + encodeURIComponent(symbol)); }
+  getAllTrades() { return this._authAjax(`${this.web_api_address}/api/v2/trade`); }
+  getTrade(tradeId) { return this._authAjax(`${this.web_api_address}/api/v2/trade/` + tradeId); }
+  createTrade(data) { return this._authAjax(`${this.web_api_address}/api/v2/trade`, 'POST', data); }
+  modifyTrade(data) { return this._authAjax(`${this.web_api_address}/api/v2/trade`, 'PUT', data); }
   cancelTrade(tradeId) {
-    return this._authAjax(`${this.web_api_address}/api/v1/trade?type=Cancel&id=${tradeId}`, 'DELETE');
+    return this._authAjax(`${this.web_api_address}/api/v2/trade?type=Cancel&id=${tradeId}`, 'DELETE');
   }
   closeTrade(tradeId, amount = null) {
-    const url = `${this.web_api_address}/api/v1/trade?type=Close&id=${tradeId}` + (amount ? `&amount=${amount}` : '');
+    const url = `${this.web_api_address}/api/v2/trade?type=Close&id=${tradeId}` + (amount ? `&amount=${amount}` : '');
     return this._authAjax(url, 'DELETE');
   }
   closeByTrade(tradeId, byTradeId) {
-    const url = `${this.web_api_address}/api/v1/trade?type=CloseBy&id=${tradeId}&byid=${byTradeId}`;
+    const url = `${this.web_api_address}/api/v2/trade?type=CloseBy&id=${tradeId}&byid=${byTradeId}`;
     return this._authAjax(url, 'DELETE');
   }
   getTradeHistory(data) {
-    return this._authAjax(`${this.web_api_address}/api/v1/tradehistory`, 'POST', data);
+    return this._authAjax(`${this.web_api_address}/api/v2/tradehistory`, 'POST', data);
   }
   getTradeHistoryByTradeId(tradeId, data) {
-    return this._authAjax(`${this.web_api_address}/api/v1/tradehistory/${tradeId}`, 'POST', data);
+    return this._authAjax(`${this.web_api_address}/api/v2/tradehistory/${tradeId}`, 'POST', data);
   }
 }
 
