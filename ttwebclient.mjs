@@ -1,66 +1,107 @@
 // ttwebclient.mjs
-const TTWebClient = (function () {
-    const _callbacks = {};
-    let _nextCallbackId = 1;
+import CryptoJS from 'crypto-js';
+import $ from 'jquery';
 
-    function _generateCallbackId() {
-        return 'cb' + (_nextCallbackId++);
-    }
+function signRequest(context, request, web_api_id, web_api_key, web_api_secret) {
+  if (!web_api_id || !web_api_key || !web_api_secret) {
+    throw new Error("Missing TickTrader Web API credentials.");
+  }
 
-    function _sendMessage(message) {
-        if (typeof WebSocket !== 'undefined' && TTWebClient._ws && TTWebClient._ws.readyState === WebSocket.OPEN) {
-            TTWebClient._ws.send(JSON.stringify(message));
-        } else {
-            console.warn('WebSocket not connected or unsupported');
-        }
-    }
+  const timestamp = Date.now();
+  const signature = timestamp + web_api_id + web_api_key + context.type + context.url + (context.data || "");
+  const hash = CryptoJS.HmacSHA256(signature, web_api_secret);
+  const authHeader = 'HMAC ' + web_api_id + ':' + web_api_key + ':' + timestamp + ':' + CryptoJS.enc.Base64.stringify(hash);
+  request.setRequestHeader('Authorization', authHeader);
+}
 
-    const TTWebClient = {
-        _ws: null,
+class TickTraderWebClient {
+  constructor(web_api_address, web_api_id, web_api_key, web_api_secret) {
+    if (!web_api_address) throw new Error("Web API address required");
+    this.web_api_address = web_api_address;
+    this.web_api_id = web_api_id;
+    this.web_api_key = web_api_key;
+    this.web_api_secret = web_api_secret;
+  }
 
-        connect(url, onOpen, onMessage, onClose, onError) {
-            this._ws = new WebSocket(url);
+  _authAjax(url, type = 'GET', data = null) {
+    return $.ajax({
+      url,
+      type,
+      data: data ? JSON.stringify(data) : undefined,
+      contentType: data ? "application/json; charset=UTF-8" : undefined,
+      beforeSend: (request) => {
+        signRequest({ type, url, data }, request, this.web_api_id, this.web_api_key, this.web_api_secret);
+      }
+    });
+  }
 
-            this._ws.onopen = onOpen;
-            this._ws.onmessage = function (event) {
-                const data = JSON.parse(event.data);
-                if (data.callbackId && _callbacks[data.callbackId]) {
-                    _callbacks[data.callbackId](data);
-                    delete _callbacks[data.callbackId];
-                } else if (onMessage) {
-                    onMessage(data);
-                }
-            };
-            this._ws.onclose = onClose;
-            this._ws.onerror = onError;
-        },
+  _publicAjax(path) {
+    return $.ajax({
+      url: `${this.web_api_address}${path}`,
+      type: 'GET'
+    });
+  }
 
-        disconnect() {
-            if (this._ws) {
-                this._ws.close();
-                this._ws = null;
-            }
-        },
+  getPublicTradeSession() { return this._publicAjax("/api/v1/public/tradesession"); }
+  getPublicAllCurrencies() { return this._publicAjax("/api/v1/public/currency"); }
+  getPublicCurrency(currency) { return this._publicAjax("/api/v1/public/currency/" + encodeURIComponent(currency)); }
+  getPublicAllSymbols() { return this._publicAjax("/api/v1/public/symbol"); }
+  getPublicSymbol(symbol) { return this._publicAjax("/api/v1/public/symbol/" + encodeURIComponent(symbol)); }
+  getPublicAllTicks() { return this._publicAjax("/api/v1/public/tick"); }
+  getPublicTick(symbol) { return this._publicAjax("/api/v1/public/tick/" + encodeURIComponent(symbol)); }
+  getPublicAllTicksLevel2() { return this._publicAjax("/api/v1/public/level2"); }
+  getPublicTickLevel2(symbol) { return this._publicAjax("/api/v1/public/level2/" + encodeURIComponent(symbol)); }
 
-        sendRequest(method, params, callback) {
-            const callbackId = _generateCallbackId();
-            if (callback) {
-                _callbacks[callbackId] = callback;
-            }
-            const message = {
-                method,
-                params,
-                callbackId
-            };
-            _sendMessage(message);
-        },
+  getAccount() { return this._authAjax(`${this.web_api_address}/api/v1/account`); }
+  getTradeSession() { return this._authAjax(`${this.web_api_address}/api/v1/tradesession`); }
+  getAllCurrencies() { return this._authAjax(`${this.web_api_address}/api/v1/currency`); }
+  getCurrency(currency) { return this._authAjax(`${this.web_api_address}/api/v1/currency/` + encodeURIComponent(currency)); }
+  getAllSymbols() { return this._authAjax(`${this.web_api_address}/api/v1/symbol`); }
+  getSymbol(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/symbol/` + encodeURIComponent(symbol)); }
+  getAllTicks() { return this._authAjax(`${this.web_api_address}/api/v1/tick`); }
+  getTick(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/tick/` + encodeURIComponent(symbol)); }
+  getAllTicksLevel2() { return this._authAjax(`${this.web_api_address}/api/v1/level2`); }
+  getTickLevel2(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/level2/` + encodeURIComponent(symbol)); }
+  getAllAssets() { return this._authAjax(`${this.web_api_address}/api/v1/asset`); }
+  getAsset(currency) { return this._authAjax(`${this.web_api_address}/api/v1/asset/` + encodeURIComponent(currency)); }
+  getAllPositions() { return this._authAjax(`${this.web_api_address}/api/v1/position`); }
+  getPosition(symbol) { return this._authAjax(`${this.web_api_address}/api/v1/position/` + encodeURIComponent(symbol)); }
+  getAllTrades() { return this._authAjax(`${this.web_api_address}/api/v1/trade`); }
+  getTrade(tradeId) { return this._authAjax(`${this.web_api_address}/api/v1/trade/` + tradeId); }
+  createTrade(data) { return this._authAjax(`${this.web_api_address}/api/v1/trade`, 'POST', data); }
+  modifyTrade(data) { return this._authAjax(`${this.web_api_address}/api/v1/trade`, 'PUT', data); }
+  cancelTrade(tradeId) {
+    return this._authAjax(`${this.web_api_address}/api/v1/trade?type=Cancel&id=${tradeId}`, 'DELETE');
+  }
+  closeTrade(tradeId, amount = null) {
+    const url = `${this.web_api_address}/api/v1/trade?type=Close&id=${tradeId}` + (amount ? `&amount=${amount}` : '');
+    return this._authAjax(url, 'DELETE');
+  }
+  closeByTrade(tradeId, byTradeId) {
+    const url = `${this.web_api_address}/api/v1/trade?type=CloseBy&id=${tradeId}&byid=${byTradeId}`;
+    return this._authAjax(url, 'DELETE');
+  }
+  getTradeHistory(data) {
+    return this._authAjax(`${this.web_api_address}/api/v1/tradehistory`, 'POST', data);
+  }
+  getTradeHistoryByTradeId(tradeId, data) {
+    return this._authAjax(`${this.web_api_address}/api/v1/tradehistory/${tradeId}`, 'POST', data);
+  }
+}
 
-        getVersion() {
-            return '1.0.0';
-        }
-    };
+export default TickTraderWebClient;
 
-    return TTWebClient;
-})();
-
-export default TTWebClient;
+/**
+ * @typedef {object} TickTraderWebClient
+ * @property {function(): Promise<any>} getAccount
+ * @property {function(): Promise<any>} getTradeSession
+ * @property {function(string): Promise<any>} getCurrency
+ * @property {function(): Promise<any>} getAllSymbols
+ * @property {function(string): Promise<any>} getSymbol
+ * @property {function(string): Promise<any>} getTick
+ * @property {function(any): Promise<any>} createTrade
+ * @property {function(any): Promise<any>} modifyTrade
+ * @property {function(string): Promise<any>} cancelTrade
+ * @property {function(string, string): Promise<any>} closeByTrade
+ * ... 其他方法可補充對應型別
+ */

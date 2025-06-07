@@ -1,8 +1,10 @@
 {
-	"name" : "TTWebClient",
+	"name" : "ticktrader-client",
 	"version" : "0.0.1",
 	"description" : "JavaScript Web API client for TickTrader",
-	"main" : "ttwebclient.js",
+	"main" : "ttwebclient.mjs",
+	"type": "module",
+	"types": "ttwebclient.d.ts",
 	"scripts" : {
 		"test" : "echo \"Error: no test specified\" && exit 1"
 	},
@@ -18,7 +20,7 @@
 	},
 	"homepage" : "https://github.com/lwhuang/TTWebClient-JavaScript#readme",
 	"dependencies" : {
-		"jquery": "^3.7.1",
-		"crypto-js": "^4.2.0"
+		"jquery" : "^3.7.1",
+		"crypto-js" : "^4.2.0"
 	}
 }
